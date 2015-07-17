@@ -2,7 +2,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 var header = {
 	    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0',
-	    'Cookie': 'SUHB=0V5laU8STAKU1T; _T_WM=d39e1f2168df5f915b7d87bd521db7f5; SUB=_2A254og7wDeTxGeRH7FMU9y_LyjuIHXVYbJK4rDV6PUJbvNBeLWHBkW1BSElYQJ6-VrX3uVh_ZSLZ6p8S-g..; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5D29h5RE0l-0OhEUYHSoVI5JpX5K-t; SSOLoginState=1436974752',
+	    'Cookie': 'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9W5D29h5RE0l-0OhEUYHSoVI5JpX5KMt; SINAGLOBAL=5162854212611.284.1427970947089; ULV=1437029213969:104:25:11:1315313057093.2336.1437029213933:1437021413189; SUHB=0qj0FVpES06E9r; UOR=,,login.sina.com.cn; __gads=ID=6419d4675ae35070:T=1433940064:S=ALNI_MbZuTKIJ4qh231j2Re3KTR9xn5N9w; wvr=6; SUS=SID-2971571717-1437029365-JA-ky5g9-384ed8ed44a0ffff767a20fd5906b274; SUE=es%3Dd4950cae6369017e150539162c4d4d93%26ev%3Dv1%26es2%3D6c3579a026691bbea191828639bdc9e5%26rs0%3DHsr668RpRHgBN%252BO3D3wyWF1STKIRnW7G%252FzsC%252Fx04ZW2qUJqaejVlk9huu4fSpU7T%252Bu3oDlPMS%252F6H%252BM6Jfat2Yt2g5cct736adwy3T9IHTzyucfJQfeQeoDMEZ7b2frNguIyxaqRrbjGls2CYOQVhvOYWFdY1PNdKGpeCVK3vz1M%253D%26rv%3D0; SUP=cv%3D1%26bt%3D1437029365%26et%3D1437115765%26d%3Dc909%26i%3Db274%26us%3D1%26vf%3D0%26vt%3D0%26ac%3D31%26st%3D0%26uid%3D2971571717%26name%3D18322694269m0%2540sina.cn%26nick%3D%25E9%2581%2593%25E8%25A1%258D%26fmp%3D%26lcp%3D2012-12-09%252017%253A28%253A55; SUB=_2A254oyOlDeTxGeRH7FMU9y_LyjuIHXVb2RJtrDV8PUNbvtAMLXfgkW9b7BFauOBZ1vW2wCimuBaF9YgCYg..; ALF=1468565364; SSOLoginState=1437029365; _s_tentry=login.sina.com.cn; Apache=1315313057093.2336.1437029213933',
 	    'Connection': 'keep-alive'
   		}
 
@@ -49,7 +49,7 @@ var getInfoById=function(id,cb){
 	// 	关注者的昵称  followName     {string}
 	// 	关注者的ID    followId 	  {string}
 	// 	关注者的头像地址 followPhoto {string}
-
+var count=0;
 var getAllFollowPerson=function(followUrl,cb){
 	var followArray=[];
 	request({
@@ -60,22 +60,22 @@ var getAllFollowPerson=function(followUrl,cb){
 		var followCount=parseInt($(".tip2 .tc")[0].children[0].data.match(/[0-9]+/)[0]);
 		var pageAll=followCount/10+1;
 		pageAll=(pageAll>20?20:pageAll);
-		
+		count=pageAll;
 		for(num=1,i=1;i<=pageAll;i++){
 			setTimeout(function () {
-                            getFollowPerson(followUrl+"?page="+(num++),followArray);
+                            getFollowPerson(followUrl+"?page="+(num++),followArray,cb);
                         }, parseInt(Math.random() * 100*followCount));
 			//getFollowPerson(followUrl+"?page="+i,followArray);
 		}
-		console.log(followCount,pageAll);
-		setTimeout(function(){
-			cb(followArray);	
-		},100*followCount);
+		// console.log(followCount,pageAll);
+		// setTimeout(function(){
+		// 	cb(followArray);	
+		// },100*followCount);
 		
 	});
 }
 
-var getFollowPerson=function(followUrl,followArray){
+var getFollowPerson=function(followUrl,followArray,cb){
 	console.log(followUrl);
 	request({
 		url:followUrl,
@@ -93,7 +93,12 @@ var getFollowPerson=function(followUrl,followArray){
 				followPhoto : this.children[0].children[0].children[0].attribs.src
 			});
 		});
-		//console.log(followArray);
+		count--;
+		console.log(count);
+		if(!count){
+			cb(followArray);
+		}
+		// console.log(followArray);
 	});
 }
 getAllFollowPerson("http://weibo.cn/1197755162/follow",function(data){
